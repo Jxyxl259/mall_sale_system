@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.OrderMapper">
+	<!-- 查询商品的剩余库存 -->
+	<select id="select_stock_info" parameterType="int" resultType="int">
+		select kc from t_mall_sku where id = #{sku_id} for update
+	</select>
+	
+	
+	<update id="update_t_mall_order" parameterType="com.protal.sale.bean.Object_T_Mall_Order">
+		update t_mall_order 
+		set 
+			jdh = #{jdh},
+			yjsdshj = #{yjsdshj}
+		where 
+			id = #{id}
+	</update>
+	
+	<update id="update_t_mall_flow" parameterType="com.protal.sale.bean.T_Mall_Flow">
+		update t_mall_flow 
+		<set>
+			<if test="psfsh!=null">
+				psfsh = #{psfsh},
+			</if><!-- 配送方式 -->
+			<if test="psshj!=null">
+				psshj = #{psshj},
+			</if><!-- 配送时间 -->
+			<if test="psmsh!=null">
+				psmsh = #{psmsh},
+			</if><!-- 配送描述 -->
+			<if test="yh_id!=0">
+				yh_id = #{yh_id},
+			</if><!-- 用户id-->
+			<if test="mqdd!=null">
+				mqdd = #{mqdd},
+			</if><!-- 目前地点-->
+			<if test="mdd!=null">
+				mdd = #{mdd},
+			</if><!-- 目的地-->
+			<if test="ywy!=null">
+				ywy = #{ywy},
+			</if><!-- 业务员-->
+			<if test="lxfsh!=null">
+				lxfsh = #{lxfsh}
+			</if><!-- 联系方式 -->
+		</set>	
+		where dd_id = #{dd_id}
+	</update>
+	
+	<update id="update_sku_stock_info">
+	
+		update t_mall_sku 
+		set kc = kc - #{sku_shl},sku_xl = sku_xl + #{sku_shl}
+		where id = #{sku_id}
+<!-- 	
+		update t_mall_sku 
+		set kc = (kc - #{sku_shl}),
+		set sku_xl = (sku_xl + #{sku_shl})
+		where id = #{sku_id} 
+		决不能写两个Set...		
+-->
+	</update>
+	
+	<delete id="delete_shopping_cars" parameterType="List">
+		delete from t_mall_shoppingcar
+		where id in (
+			<foreach collection="list_cart_id" item="shoppingcar_id" separator=",">
+				#{shoppingcar_id}
+			</foreach>
+		)
+		
+	</delete>
+	
+	<insert id="insert_flow_into_db" parameterType="com.protal.sale.bean.T_Mall_Flow">
+		insert into t_mall_flow(
+		yh_id,
+		dd_id,
+		mqdd,
+		mdd,
+		psfsh
+		)
+		values(
+		#{yh_id},
+		#{dd_id},
+		#{mqdd},
+		#{mdd},
+		#{psfsh}
+		)
+	</insert>
+	
+	<insert id="insert_order_infos_into_db" parameterType="com.protal.sale.bean.T_Mall_Order_Info">
+		insert into t_mall_order_info(	
+			dd_id,
+			sku_id,
+			sku_mch,
+			shp_tp,
+			sku_jg,
+			sku_shl,
+			sku_kcdz,
+			gwch_id)
+		values 
+		<foreach collection="order_info_list" item="order_info" separator=",">
+			(
+			#{order_info.dd_id},
+			#{order_info.sku_id},
+			#{order_info.sku_mch},
+			#{order_info.shp_tp},
+			#{order_info.sku_jg},
+			#{order_info.sku_shl},
+			#{order_info.sku_kcdz},
+			#{order_info.gwch_id}
+			)
+		</foreach>
+		
+	</insert>
+	
+	<insert id="insert_order_into_db" 
+			parameterType="com.protal.sale.bean.Object_T_Mall_Order"
+			useGeneratedKeys="true" 
+			keyColumn="id" 
+			keyProperty="id">
+		insert into
+		t_mall_order(
+		shhr,
+		zje,
+		jdh,
+		yh_id,
+		dzh_id,
+		dzh_mch
+		)
+		values(
+		#{shhr},
+		#{zje},
+		#{jdh},
+		#{yh_id},
+		#{dzh_id},
+		#{dzh_mch}
+		)
+	</insert>
+	
+</mapper>

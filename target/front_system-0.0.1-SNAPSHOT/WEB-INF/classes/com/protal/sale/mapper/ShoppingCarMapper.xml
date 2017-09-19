@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.ShoppingCarMapper">
+	
+	<select id="select_T_Mall_Shoppingcar_List_By_login_user_id" parameterType="int" resultType="com.protal.sale.bean.T_Mall_Shoppingcar">
+		select * from t_mall_shoppingcar where yh_id =#{yh_id}
+	</select>
+
+	<insert id="add_shoppingcar_to_db" 
+			parameterType="com.protal.sale.bean.T_Mall_Shoppingcar" 
+			useGeneratedKeys="true" 
+			keyColumn="id" 
+			keyProperty="id">
+		insert into T_Mall_Shoppingcar(
+			sku_mch,
+			sku_jg,
+			tjshl,
+			hj,
+			yh_id,
+			shp_id,
+			sku_id,
+			shp_tp,
+			shfxz,
+			kcdz
+		) values (#{sku_mch},#{sku_jg},#{tjshl},#{hj},#{yh_id},#{shp_id},#{sku_id},#{shp_tp},#{shfxz},#{kcdz})
+	</insert> 
+	
+	<update id="update_shoppingcar_in_db" parameterType="com.protal.sale.bean.T_Mall_Shoppingcar">
+		update T_Mall_Shoppingcar 
+		set tjshl = #{tjshl},hj = #{hj}
+		where id = #{id}
+	</update>
+	
+	<update id="update_shoppingcar_chose_status_in_db" parameterType="com.protal.sale.bean.T_Mall_Shoppingcar">
+		update T_Mall_Shoppingcar 
+		set shfxz = #{shfxz}
+		where id = #{id}
+	</update>
+	
+	<update id="update_shoppingcar_item_num_in_db" parameterType="com.protal.sale.bean.T_Mall_Shoppingcar">
+		update T_Mall_Shoppingcar 
+		set hj = #{hj},tjshl = #{tjshl}
+		where id = #{id} and yh_id=#{yh_id}
+	</update>
+	
+	<delete id="delete_shoppingcar_item_in_db" parameterType="com.protal.sale.bean.T_Mall_Shoppingcar">
+		delete from T_Mall_Shoppingcar 
+		where id = #{id}
+	</delete>
+	
+	<select id="get_shopping_car_total_price" resultType="java.lang.Double">
+		select sum(hj) from t_mall_shoppingcar where shfxz="1"
+	</select>
+</mapper>

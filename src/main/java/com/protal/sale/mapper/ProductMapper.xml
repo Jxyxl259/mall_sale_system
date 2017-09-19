@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.ProductMapper">
+	
+	<select id="select_product_info_details" parameterType="int" resultMap="select_product_info_details_map">
+		SELECT 
+			spu.Id as spu_id ,img.id as img_id, img.url as img_url , sku.Id as sku_id ,tm.Id as tm_id ,sku_av.id as sku_av_id,
+			attr.shxm_mch as shxm_mch, concat(val.shxzh,val.shxzh_mch) as shxzh_mch ,
+			spu.*,img.*,sku.*,tm.*,sku_av.*,attr.*,val.*
+		from 
+			t_mall_product spu,
+			t_mall_product_image img,
+			t_mall_sku sku,
+			t_mall_trade_mark tm,
+			t_mall_sku_attr_value sku_av,
+			t_mall_attr attr,
+			t_mall_value val
+		where 
+			sku.shp_id = spu.Id
+		AND
+			spu.Id = img.shp_id
+		and 
+			tm.Id = spu.pp_id
+		and 
+			sku_av.sku_id = sku.Id
+		and 
+			sku_av.shxm_id = attr.Id
+		and 
+			sku_av.shxzh_id = val.Id
+		and 
+			attr.Id = val.shxm_id
+		and 
+			sku.Id =#{sku_id}
+	</select>
+	<!-- 
+		不要修改基类：T_Mall_Attr,
+			如果有需求，比如说想给基类添加一个List类型的成员属性作为封装多个T_Mall_Value的集合，
+			那就再创建一个Object_T_Mall_Attr这个类来继承T_Mall_Attr
+			并在Object_T_Mall_Attr中添加需要的List集合成员属性
+	 -->
+	<resultMap type="com.protal.sale.bean.Object_T_Mall_Product_detail" id="select_product_info_details_map" 
+		autoMapping="true">
+		<result property="Id" column="sku_id"/>
+		<association property="spu" javaType="com.protal.sale.bean.T_Mall_Product"
+			autoMapping="true">
+			<result property="Id" column="spu_id"/>
+		</association>
+		<association property="tm" javaType="com.protal.sale.bean.T_MALL_TRADE_MARK"
+			autoMapping="true">
+			<result property="Id" column="tm_id"/>
+		</association>
+		<collection property="images" ofType="com.protal.sale.bean.T_Mall_Product_Image" 
+			autoMapping="true">
+			<result property="Id" column="img_id"/>
+			<result property="url" column="img_url"/>
+		</collection>
+		<collection property="sku_av_list" ofType="com.protal.sale.bean.Object_T_Mall_Product_Detail_Attr_Value"
+			autoMapping="true">
+			<result property="shxzh_mch" column="shxzh_mch"/>
+			<result property="shxm_mch" column="shxm_mch"/>
+		</collection>
+	</resultMap>
+	
+</mapper>

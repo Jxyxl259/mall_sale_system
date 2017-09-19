@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.AddressMapper">
+
+	<select id="select_user_address_by_user_id" parameterType="int"
+		resultType="com.protal.sale.bean.T_Mall_Address">
+		select * from t_mall_address
+		where yh_id = #{user_id}
+	</select>
+</mapper>

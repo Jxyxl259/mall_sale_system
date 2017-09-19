@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.SearchMapper">
+	
+	<select id="select_product_by_class_2_id" parameterType="int" 
+		resultMap="get_product_by_class_2_id_map" >
+		
+		select 
+			sku.id as sku_id, spu.id as spu_id, tm.id as tm_id, sku.*,spu.*,tm.*
+		from 
+			t_mall_sku sku,
+			t_mall_product spu,
+			t_mall_trade_mark tm
+		where
+			sku.shp_id = spu.id 
+		and
+			tm.id = spu.pp_id
+		and 
+			spu.flbh2 = #{flbh2}	
+		
+	</select>
+
+
+	<resultMap type="com.protal.sale.bean.OBJECT_T_MALL_SKU" 
+			   id="get_product_by_class_2_id_map" 
+			   autoMapping="true">
+		<result column="sku_id" property="id"/>
+		<association javaType="com.protal.sale.bean.T_Mall_Product" 
+					 property="spu" 
+					 autoMapping="true">
+				<result column="spu_id" property="id"/>
+		</association>
+		<association javaType="com.protal.sale.bean.T_MALL_TRADE_MARK" 
+					 property="tm" 
+					 autoMapping="true">
+				<result column="tm_id" property="id"/>
+		</association>
+	</resultMap>
+</mapper>

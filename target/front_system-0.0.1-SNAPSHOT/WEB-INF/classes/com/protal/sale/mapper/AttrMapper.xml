@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.protal.sale.mapper.AttrMapper">
+	
+	<select id="selectProductAttrInfo" parameterType="int" resultMap="selectProductAttrInfo_map">
+	select 
+		attr.Id as attr_id , 
+		val.Id as val_id, 
+		val.shxzh_mch ,
+		attr.*,
+		val.*
+	from 
+		t_mall_attr as attr, 
+		t_mall_value as val
+	where 
+		attr.Id = val.shxm_id
+	and 
+		flbh2= #{flbh2}
+	</select>
+	<!-- 
+		不要修改基类：T_Mall_Attr,
+			如果有需求，比如说想给基类添加一个List类型的成员属性作为封装多个T_Mall_Value的集合，
+			那就再创建一个Object_T_Mall_Attr这个类来继承T_Mall_Attr
+			并在Object_T_Mall_Attr中添加需要的List集合成员属性
+	 -->
+	<resultMap type="com.protal.sale.bean.Object_T_Mall_Attr" id="selectProductAttrInfo_map" 
+		autoMapping="true">
+		<result property="Id" column="attr_id"/>
+		<collection property="valueList" ofType="com.protal.sale.bean.T_Mall_Value" 
+			autoMapping="true">
+			<result property="Id" column="val_id"/>
+		</collection>
+	</resultMap>
+	
+</mapper>

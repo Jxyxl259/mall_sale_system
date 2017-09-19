@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+<context:property-placeholder location="classpath:jdbc.properties,classpath:wsdlURL.properties" />
+	
+	<context:component-scan base-package="com.protal.sale.service" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="driverClass" value="${jdbc.driverClass}"/>
+		<property name="initialPoolSize" value="${initialPoolSize}"/>
+		<property name="minPoolSize" value="${minPoolSize}"/>
+		<property name="maxPoolSize" value="${maxPoolSize}"/>
+	</bean>
+
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.protal.sale.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
+	</bean>
+
+	<!-- 配置不同的服务接口，只需要修改MyWsInfFactoryBean再构造注入时传入的两个成员属性即可 -->
+	<bean class="com.protal.sale.utils.MyWsInfFactoryBean"><!-- 返回的就是一个服务接口的代理类 -->
+		<property name="t" value="com.protal.sale.service.UserVerifyService"></property>
+		<property name="url" value="${userService_WSDL_url}"></property>
+	</bean>
+
+
+	<bean class="com.protal.sale.utils.MyWsInfFactoryBean"><!-- 返回的就是一个服务接口的代理类 -->
+		<property name="t" value="com.protal.sale.service.AddressService"></property>
+		<property name="url" value="${userAddressService_WSDL_url}"></property>
+	</bean>
+	
+	<!-- 开启声明式事务 -->
+	<!-- 配置数据源事务管理器 -->
+	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+		<!--  事务时基于连接的，所以要把数据源注入给事务	框架就会根据数据源自动去拿连接-->
+		<!-- （即使在ssd模式下的Filter中也要用连接来设置取消事务的自动提交/提交事务/回滚事务） -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+		<!-- 采用基于XML的声明式事务 -->
+	<aop:config><!-- *1:方法的权限修饰符。*2:XxxService类名中的Xxx。*3:方法名。..1:省略的包路径。..2:方法的参数个数随意 -->
+		<aop:pointcut expression="execution(* com.protal..service.*Service.*(..))" id="txPointcutId"/>
+		<aop:advisor advice-ref="adviceId" pointcut-ref="txPointcutId"/>
+	</aop:config>
+	<!-- 配置通知（根据事务管理器添加事务，所以要引用事务管理器） -->
+	<tx:advice id="adviceId" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" isolation="DEFAULT"
+					   rollback-for="java.lang.Exception"/>
+		</tx:attributes>
+	</tx:advice>
+</beans>
